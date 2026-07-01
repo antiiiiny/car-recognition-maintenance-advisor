@@ -6,7 +6,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 
 | Stage | Name | Scope | Status |
 | --- | --- | --- | --- |
-| 1 | Foundation & Data Readiness | Repo scaffold, dataset extraction, path handling, EDA, sanity checks | In progress |
+| 1 | Foundation & Data Readiness | Repo scaffold, dataset extraction, path handling, EDA, sanity checks | Completed |
 | 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | Not started |
 | 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Not started |
 | 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Not started |
@@ -19,10 +19,12 @@ Repo scaffold, dataset extraction, path handling, EDA, sanity checks.
 
 Verification criteria:
 
-- [ ] All 196 class folders present, none empty
-- [ ] Image counts match expected train/test split
-- [ ] Zero corrupt/unreadable files (run an explicit integrity check, e.g. attempt to open every image)
-- [ ] At least 3 sample images per a few random classes render correctly when previewed
+- [x] All 196 class folders present, none empty
+- [x] Image counts match expected train/test split
+- [x] Zero corrupt/unreadable files (run an explicit integrity check, e.g. attempt to open every image)
+- [x] At least 3 sample images per a few random classes render correctly when previewed
+
+Verified on 2026-07-01: the extracted dataset at `data/car_data/car_data` contains 196 non-empty class folders in both `train` and `test`, the image counts match the expected split counts (`train=8144`, `test=8041`), zero corrupt files were found by opening every image, and sample images from random classes loaded successfully with no preview errors.
 
 ## Stage 2 - CNN Pipeline
 
