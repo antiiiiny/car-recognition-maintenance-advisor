@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+
+# Dataset and local artifacts
+data/*
+!data/.gitkeep
+!data/raw/
+!data/raw/.gitkeep
+
+# Models and outputs
+models/
+artifacts/
+reports/
+logs/
+
+# VS Code
+.vscode/
