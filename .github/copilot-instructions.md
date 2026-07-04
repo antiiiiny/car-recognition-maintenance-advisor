@@ -20,7 +20,7 @@ Image Input → Preprocessing → CNN (classification) → Prompt Engineering �
 - **Language**: Python 3.10+
 - **CNN framework**: TensorFlow/Keras only — do not introduce PyTorch
 - **Pretrained models**: `tf.keras.applications` — evaluate both EfficientNetB0 and ResNet50 (ImageNet weights, fine-tuned on Stanford Cars) and keep whichever performs better; log both results for the writeup
-- **LLM**: OpenAI API — GPT-5.4-mini (current-generation, cost-efficient, sufficient for structured report generation; GPT-5.4-nano is an even cheaper fallback for high-volume testing) — abstract the LLM call behind a single function/class so the model could be swapped later if needed
+- **LLM**: OpenAI API — use a configurable model name loaded from `OPENAI_MODEL` with a documented default; abstract the LLM call behind a single function/class so the model could be swapped later if needed
 - **NLP libraries**: `openai` Python SDK for API calls; Hugging Face Transformers not needed unless a local model is added later
 - **Deployment**: Streamlit
 - **Dataset**: Stanford Cars Dataset (Kaggle: `jutrera/stanford-car-dataset-by-classes-folder`) — full 196-class labels (make + model + year), no label collapsing
@@ -45,13 +45,14 @@ car-recognition-maintenance-advisor/
 - Use type hints on all function signatures.
 - Docstrings (Google style) on all public functions and classes.
 - Never hardcode API keys or secrets — always load from environment variables (`.env` file, gitignored) via `python-dotenv` or `os.environ`. The OpenAI key should be read as `OPENAI_API_KEY`.
+- Never read, print, commit, or expose `.env` contents. Only reference required variable names such as `OPENAI_API_KEY` and `OPENAI_MODEL`.
 - Keep CNN inference and LLM report generation as separate, independently testable functions — don't couple them into one giant function.
 - Prompt templates for the LLM should live in `src/llm/prompts.py` as named constants or template strings, not inline in application code.
 - Log predictions and generated reports during development for debugging (but don't log secrets or full API payloads in production code).
 - Prefer explicit, readable code over one-liners — this is a learning project, not a golf competition.
 
 ## Model & Data Notes
-- Class labels follow the Stanford Cars format: `<year> <make> <model>` (e.g. "2012 BMW M3 coupe"). Full 196-class label set — do not collapse or simplify.
+- Class labels follow the Stanford Cars folder/name format, usually `<make> <model/body style> <year>` (e.g. "Acura TL Sedan 2012"). Do not assume the year comes first. Full 196-class label set — do not collapse or simplify.
 - Do not commit the dataset itself to the repo; document download/setup steps in `README.md` instead.
 - Evaluate the CNN with accuracy, precision/recall (macro-averaged given many classes), and a confusion matrix on the most-confused classes.
 
