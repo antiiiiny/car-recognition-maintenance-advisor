@@ -118,6 +118,15 @@ Run tests:
 python -m pytest
 ```
 
+WSL2 TensorFlow GPU setup and calibration:
+
+```bash
+source scripts/activate_wsl_gpu.sh
+python scripts/check_tf_gpu.py
+```
+
+See `docs/WSL2_TF_GPU_SETUP.md` for the verified WSL2 + GTX 1650 setup and smoke-training commands.
+
 Run the dataset EDA summary:
 
 ```powershell
