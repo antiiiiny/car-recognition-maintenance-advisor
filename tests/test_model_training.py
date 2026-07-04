@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from src.model.compare_runs import compare_run_directories
 from src.model.architectures import normalize_architecture_name
 from src.model.training import ModelRunResult, select_winner
 
@@ -40,3 +41,29 @@ def test_select_winner_requires_results() -> None:
     """Verify winner selection requires at least one model result."""
     with pytest.raises(ValueError):
         select_winner([])
+
+
+def test_compare_run_directories_writes_summary_and_winner(tmp_path) -> None:
+    """Verify run comparison writes reproducible winner artifacts."""
+    efficientnet_dir = tmp_path / "efficientnetb0"
+    resnet_dir = tmp_path / "resnet50"
+    output_dir = tmp_path / "comparison"
+    efficientnet_dir.mkdir()
+    resnet_dir.mkdir()
+    (efficientnet_dir / "training_log.csv").write_text(
+        "epoch,val_top_1_accuracy,val_top_5_accuracy\n1,0.2,0.4\n2,0.3,0.5\n",
+        encoding="utf-8",
+    )
+    (resnet_dir / "training_log.csv").write_text(
+        "epoch,val_top_1_accuracy,val_top_5_accuracy\n1,0.3,0.6\n",
+        encoding="utf-8",
+    )
+
+    winner = compare_run_directories(
+        {"efficientnetb0": efficientnet_dir, "resnet50": resnet_dir},
+        output_dir,
+    )
+
+    assert winner.architecture == "resnet50"
+    assert (output_dir / "model_comparison.csv").exists()
+    assert (output_dir / "selected_model.json").exists()
