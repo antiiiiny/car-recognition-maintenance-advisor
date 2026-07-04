@@ -9,7 +9,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 | 1 | Foundation & Data Readiness | Repo scaffold, dataset extraction, path handling, EDA, sanity checks | Completed |
 | 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | Completed |
 | 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Completed |
-| 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Not started |
+| 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Completed |
 | 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Not started |
 | 6 | Evaluation & Write-up | CNN metrics, confusion matrix, qualitative LLM review, capstone documentation | Not started |
 
@@ -77,8 +77,10 @@ Image in -> CNN prediction -> prompt -> LLM report, as one callable.
 
 Verification criteria:
 
-- [ ] Runs end-to-end on a sample image with zero manual intervention
-- [ ] Tested on at least 3 different images without errors
+- [x] Runs end-to-end on a sample image with zero manual intervention
+- [x] Tested on at least 3 different images without errors
+
+Stage 4 completed on 2026-07-04: added single-image prediction, end-to-end pipeline wiring, CLI, tests, and documentation (`src/inference/predictor.py`, `src/inference/pipeline.py`, `src/inference/pipeline_cli.py`, and `docs/STAGE4_PIPELINE_WIRING.md`). The pipeline uses the project-local selected EfficientNetB0 artifacts at `artifacts/stage2_full/efficientnetb0/best_model.keras` and `artifacts/stage2_full/efficientnetb0/class_mapping.json`, then sends the predicted label to the Stage 3 report generator. Focused Stage 4 tests passed with `3 passed`; the full test suite passed with `23 passed`. Manual fake-LLM pipeline verification succeeded on three images with zero manual intervention after command start: `data/car_data/car_data/test/Acura TL Sedan 2012/00043.jpg`, `data/car_data/car_data/test/Audi R8 Coupe 2012/00309.jpg`, and `data/car_data/car_data/test/BMW M3 Coupe 2012/00103.jpg`. Each run produced a predicted class, confidence/top-5 predictions, and a structured maintenance report using the fake LLM client, so no OpenAI API call was required. Stage 5 may now begin.
 
 ## Stage 5 - Streamlit Demo
 
