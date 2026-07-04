@@ -7,7 +7,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 | Stage | Name | Scope | Status |
 | --- | --- | --- | --- |
 | 1 | Foundation & Data Readiness | Repo scaffold, dataset extraction, path handling, EDA, sanity checks | Completed |
-| 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | In progress |
+| 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | Completed |
 | 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Not started |
 | 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Not started |
 | 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Not started |
@@ -37,20 +37,24 @@ Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, mo
 
 Verification criteria:
 
-- [ ] Both models complete training without errors
+- [x] Both models complete training without errors
 - [x] TensorFlow data loaders produce train/validation/test datasets with 196 classes
 - [x] Class index mapping is saved and reproducible
 - [x] A small smoke-training run completes on a subset before full training
-- [ ] Metrics are logged for both models, including top-1 accuracy, top-5 accuracy given 196 classes, macro precision/recall, and loss curves
-- [ ] Model checkpoints and training curves are saved
-- [ ] A winner is selected using validation metrics, such as higher validation top-1 accuracy with ties broken by validation top-5 accuracy
-- [ ] The final selected model is evaluated on the held-out test set only after model selection
+- [x] Metrics are logged for both models, including top-1 accuracy, top-5 accuracy given 196 classes, macro precision/recall, and loss curves
+- [x] Model checkpoints and training curves are saved
+- [x] A winner is selected using validation metrics, such as higher validation top-1 accuracy with ties broken by validation top-5 accuracy
+- [x] The final selected model is evaluated on the held-out test set only after model selection
 
 Progress on 2026-07-03: added reusable Stage 2 modules for CNN dataset loading (`src/data/cnn_dataset.py`), transfer model construction (`src/model/architectures.py`), training utilities and winner selection (`src/model/training.py`), CLI training entry point (`src/model/train_cnn.py`), and evaluation metrics (`src/model/evaluation.py`). Unit tests passed with 10 tests. The real dataset class mapping was generated at `artifacts/models/class_mapping.json` with 196 classes.
 
 Smoke verification on 2026-07-03: TensorFlow 2.21.0 imported successfully. `python -m pytest` passed with 10 tests. EfficientNetB0 and ResNet50 each completed a one-epoch, one-batch smoke training run using `--image-size 64 --batch-size 2 --smoke-batches 1 --weights none --output-dir artifacts/smoke_models`. Both runs loaded train/validation/test datasets with 196 classes (`train=8144`, split to 6516 training and 1628 validation examples; `test=8041`) and saved `best_model.keras`, `class_mapping.json`, `config.json`, and `training_log.csv` under their respective smoke artifact directories. Full training, full metrics logging, model comparison, and final test evaluation are still pending.
 
 WSL GPU verification on 2026-07-04: WSL2 Ubuntu 24.04 sees the GTX 1650 via `nvidia-smi`, but TensorFlow initially skipped GPU registration because CUDA/cuDNN runtime libraries were not discoverable from the project-local `.venv-wsl` under `/mnt/c`. A Linux-filesystem venv was created at `$HOME/.venvs/car-cnn-wsl`; `tensorflow[and-cuda]==2.21.0` installed the NVIDIA CUDA 12 pip wheels; `scripts/activate_wsl_gpu.sh` now activates that venv and prepends the NVIDIA wheel `lib` directories to `LD_LIBRARY_PATH`. `python scripts/check_tf_gpu.py` confirmed TensorFlow 2.21.0 lists `/physical_device:GPU:0` with device name `NVIDIA GeForce GTX 1650`. Short WSL GPU calibration training completed for EfficientNetB0 (`--image-size 128 --batch-size 4 --epochs 1 --smoke-batches 2 --weights none --output-dir $HOME/artifacts/wsl_gpu_calibration`) and ResNet50 (`--image-size 128 --batch-size 2 --epochs 1 --smoke-batches 1 --weights none --output-dir $HOME/artifacts/wsl_gpu_calibration`), both saving `best_model.keras`. `python -m pytest` passed with 10 tests after the WSL GPU helper and diagnostic updates. Full training, full metrics logging, model comparison, and final test evaluation remain pending.
+
+Stage 2 completed on 2026-07-04: added saved-model evaluation, training-curve plotting, and run-comparison CLIs (`src.model.evaluate_cnn`, `src.model.plot_training_curves`, and `src.model.compare_runs`). Replaced non-serializable preprocessing Lambda usage so new Keras checkpoints reload for evaluation. `python -m pytest tests/test_evaluation.py tests/test_model_training.py -q` passed with 7 focused tests after the serialization change; a previous full suite run passed with 12 tests. Medium WSL GPU calibration with ImageNet weights completed using `--image-size 160`, batch size 8 for EfficientNetB0 and batch size 4 for ResNet50. Full-dataset training then completed for both models for 5 epochs under `$HOME/artifacts/stage2_full`: EfficientNetB0 reached validation top-1 accuracy `0.6468058968058968` and validation top-5 accuracy `0.8372235872235873`; ResNet50 reached validation top-1 accuracy `0.5608108108108109` and validation top-5 accuracy `0.7874692874692875`. Training logs, `best_model.keras`, `config.json`, `class_mapping.json`, and curve PNGs were saved for both models. Validation macro metrics were generated for both runs. EfficientNetB0 was selected using the documented validation top-1 rule. Only after selection, EfficientNetB0 was evaluated on the held-out test split, producing test accuracy `0.3528168138291257`, test top-5 accuracy `0.6512871533391369`, macro precision `0.45459300697012256`, macro recall `0.35508250328337215`, and macro F1 `0.3466540373708492`. Reproduction commands are documented in `docs/STAGE2_CNN_TRAINING.md`.
+
+Stage 2 verification passed because both candidate CNNs trained successfully on the full dataset split, the required artifacts and metrics were generated for both models, model selection used validation metrics only, and the held-out test split was used only once for the selected EfficientNetB0 model. Stage 3 may now begin.
 
 ## Stage 3 - LLM Component
 

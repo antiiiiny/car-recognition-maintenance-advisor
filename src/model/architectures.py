@@ -8,6 +8,16 @@ from typing import Literal
 ArchitectureName = Literal["efficientnetb0", "resnet50"]
 
 
+def preprocess_resnet50_input(inputs):
+    """Apply ResNet50 preprocessing in a Keras-serializable function."""
+    try:
+        import tensorflow as tf
+    except ImportError as exc:
+        raise ImportError("TensorFlow is required to preprocess ResNet50 inputs.") from exc
+
+    return tf.keras.applications.resnet50.preprocess_input(inputs)
+
+
 def normalize_architecture_name(name: str) -> ArchitectureName:
     """Normalize a user-provided architecture name.
 
@@ -69,7 +79,6 @@ def build_transfer_model(
     x = augmentation(inputs)
 
     if model_name == "efficientnetb0":
-        preprocess = tf.keras.applications.efficientnet.preprocess_input
         base_model = tf.keras.applications.EfficientNetB0(
             include_top=False,
             weights=weights,
@@ -84,9 +93,9 @@ def build_transfer_model(
             input_shape=input_shape,
             pooling="avg",
         )
+        x = tf.keras.layers.Lambda(preprocess_resnet50_input, name=f"{model_name}_preprocess")(x)
 
     base_model.trainable = base_trainable
-    x = tf.keras.layers.Lambda(preprocess, name=f"{model_name}_preprocess")(x)
     x = base_model(x, training=False)
     x = tf.keras.layers.Dropout(dropout_rate)(x)
     outputs = tf.keras.layers.Dense(num_classes, activation="softmax", name="class_probabilities")(x)

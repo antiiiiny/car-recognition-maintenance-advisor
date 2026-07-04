@@ -127,6 +127,15 @@ python scripts/check_tf_gpu.py
 
 See `docs/WSL2_TF_GPU_SETUP.md` for the verified WSL2 + GTX 1650 setup and smoke-training commands.
 
+Run and reproduce Stage 2 CNN training/evaluation:
+
+```bash
+source scripts/activate_wsl_gpu.sh
+python -m src.model.train_cnn --architecture efficientnetb0 --data-dir data/car_data/car_data --image-size 160 --batch-size 8 --epochs 5 --weights imagenet --output-dir "$HOME/artifacts/stage2_full"
+```
+
+See `docs/STAGE2_CNN_TRAINING.md` for the full EfficientNetB0/ResNet50 training, comparison, curve plotting, and held-out test evaluation commands.
+
 Run the dataset EDA summary:
 
 ```powershell

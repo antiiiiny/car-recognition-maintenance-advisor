@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from src.data.cnn_dataset import create_image_datasets
+from src.model.architectures import preprocess_resnet50_input
 from src.model.evaluation import evaluate_probability_predictions, extract_labels_from_categorical_dataset
 
 
@@ -43,7 +44,11 @@ def main() -> None:
 
     # The training model contains preprocessing Lambda layers, so safe_mode=False is
     # required when loading Keras v3 `.keras` checkpoints from trusted local training.
-    model = tf.keras.models.load_model(args.model_path, safe_mode=False)
+    model = tf.keras.models.load_model(
+        args.model_path,
+        custom_objects={"preprocess_resnet50_input": preprocess_resnet50_input},
+        safe_mode=False,
+    )
     probabilities = model.predict(dataset, verbose=1)
     y_true = extract_labels_from_categorical_dataset(dataset)
     metrics = evaluate_probability_predictions(
