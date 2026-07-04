@@ -8,7 +8,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 | --- | --- | --- | --- |
 | 1 | Foundation & Data Readiness | Repo scaffold, dataset extraction, path handling, EDA, sanity checks | Completed |
 | 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | Completed |
-| 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Not started |
+| 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Completed |
 | 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Not started |
 | 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Not started |
 | 6 | Evaluation & Write-up | CNN metrics, confusion matrix, qualitative LLM review, capstone documentation | Not started |
@@ -62,12 +62,14 @@ Prompt template, OpenAI API wrapper, report generation.
 
 Verification criteria:
 
-- [ ] Test against at least 5 different predicted labels
-- [ ] Each output is structurally consistent with the same sections and format every time
-- [ ] No hallucinated make/model info contradicts the input label
-- [ ] LLM client supports a mock/fake mode for tests to avoid unnecessary API calls
-- [ ] OpenAI model name is configurable through environment/config
-- [ ] Missing API key fails with a clear user-friendly error
+- [x] Test against at least 5 different predicted labels
+- [x] Each output is structurally consistent with the same sections and format every time
+- [x] No hallucinated make/model info contradicts the input label
+- [x] LLM client supports a mock/fake mode for tests to avoid unnecessary API calls
+- [x] OpenAI model name is configurable through environment/config
+- [x] Missing API key fails with a clear user-friendly error
+
+Stage 3 completed on 2026-07-04: added prompt construction, OpenAI configuration/client wrapper, deterministic fake client, report generation facade, CLI, tests, and documentation (`src/llm/prompts.py`, `src/llm/client.py`, `src/llm/fake_client.py`, `src/llm/report_generator.py`, `src/llm/report_cli.py`, and `docs/STAGE3_LLM_COMPONENT.md`). The fake client was tested against five Stanford Cars labels (`Acura TL Sedan 2012`, `BMW M3 Coupe 2012`, `Audi R8 Coupe 2012`, `Dodge Charger Sedan 2012`, and `smart fortwo Convertible 2012`) and produced the same required sections in order: Vehicle, Common Issues, Preventive Maintenance Checklist, Mileage-Based Notes, Customer-Friendly Summary, and Safety Disclaimer. Missing `OPENAI_API_KEY` raises a clear `MissingOpenAIKeyError`, and `OPENAI_MODEL` is configurable with a documented default. Manual fake CLI verification succeeded with `python -m src.llm.report_cli --fake --label "Acura TL Sedan 2012" --mileage 85000 --concern "engine noise"`. Focused Stage 3 tests passed with `8 passed`; the full test suite passed with `20 passed`. Stage 4 may now begin.
 
 ## Stage 4 - Pipeline Wiring
 
