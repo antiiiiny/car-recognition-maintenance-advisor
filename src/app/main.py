@@ -12,8 +12,15 @@ client (default ON) so the app works fully offline without an OpenAI API key.
 
 from __future__ import annotations
 
+import sys
 import tempfile
 from pathlib import Path
+
+# Streamlit runs this file directly, so the project root is not on sys.path.
+# Add it before importing anything from the `src` package.
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
 import streamlit as st
 

@@ -13,6 +13,7 @@ except ImportError:  # pragma: no cover - exercised only in incomplete local env
 
 
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_OPENAI_BASE_URL = None  # None = use the SDK default (OpenAI)
 
 
 class MissingOpenAIKeyError(RuntimeError):
@@ -25,6 +26,7 @@ class LLMConfig:
 
     api_key: str
     model: str = DEFAULT_OPENAI_MODEL
+    base_url: str | None = DEFAULT_OPENAI_BASE_URL
 
     @classmethod
     def from_env(cls) -> "LLMConfig":
@@ -44,7 +46,8 @@ class LLMConfig:
             )
 
         model = os.environ.get("OPENAI_MODEL", DEFAULT_OPENAI_MODEL).strip() or DEFAULT_OPENAI_MODEL
-        return cls(api_key=api_key, model=model)
+        base_url = os.environ.get("OPENAI_BASE_URL", "").strip() or None
+        return cls(api_key=api_key, model=model, base_url=base_url)
 
 
 class OpenAIMaintenanceClient:
@@ -73,7 +76,7 @@ class OpenAIMaintenanceClient:
         except ImportError as exc:
             raise ImportError("The openai package is required for real LLM report generation.") from exc
 
-        client = OpenAI(api_key=self.config.api_key)
+        client = OpenAI(api_key=self.config.api_key, base_url=self.config.base_url)
         response = client.chat.completions.create(
             model=self.config.model,
             messages=[
