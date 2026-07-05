@@ -10,7 +10,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 | 2 | CNN Pipeline | Data loading, augmentation, EfficientNetB0 and ResNet50 training, comparison, model selection | Completed |
 | 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Completed |
 | 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Completed |
-| 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Not started |
+| 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Completed |
 | 6 | Evaluation & Write-up | CNN metrics, confusion matrix, qualitative LLM review, capstone documentation | Not started |
 
 ## Stage 1 - Foundation & Data Readiness
@@ -88,11 +88,13 @@ Upload photo, show prediction, show generated report.
 
 Verification criteria:
 
-- [ ] App launches cleanly
-- [ ] At least 2 to 3 real image uploads complete the full flow with both prediction and report rendered
-- [ ] No unhandled exceptions appear in the console during those runs
-- [ ] App handles missing model files and missing OpenAI API keys gracefully
-- [ ] App does not expose secrets or raw API payloads
+- [x] App launches cleanly
+- [x] At least 2 to 3 real image uploads complete the full flow with both prediction and report rendered
+- [x] No unhandled exceptions appear in the console during those runs
+- [x] App handles missing model files and missing OpenAI API keys gracefully
+- [x] App does not expose secrets or raw API payloads
+
+Stage 5 completed on 2026-07-05: rewrote `src/app/main.py` from a placeholder shell into a full Streamlit app and added `src/app/pipeline_runner.py` with testable helpers for path validation, LLM client selection, and pipeline execution. The app provides a sidebar (model path, class mapping path, image size, mileage, customer concern, and a "Use fake LLM (offline)" toggle default ON), a file uploader (PNG/JPEG), and renders the uploaded image, predicted label + confidence, a top-5 predictions table with bar chart, the full structured maintenance report, a prompt expander for transparency, and a "Download report as Markdown" button. The Keras model is loaded once per session via `@st.cache_resource`. Added `tests/test_app.py` with 7 tests covering path validation (existing, missing, empty), LLM client selection (fake, real missing key, real with key), and an end-to-end pipeline run with the fake client and a stub model. Focused Stage 5 tests passed with `7 passed`; the full test suite passed with `30 passed`. Installed `streamlit>=1.37.0` (v1.58.0). Manual verification: `streamlit run src/app/main.py` launched cleanly on `http://localhost:8501`; three real test images completed the full flow with zero unhandled exceptions in the console (only cosmetic `use_container_width` deprecation warnings): `BMW M3 Coupe 2012/00103.jpg` (predicted BMW M3 Coupe 2012, confidence 0.3665), `Audi R8 Coupe 2012/00309.jpg` (predicted Spyker C8 Coupe 2009, confidence 0.7261), and `Acura TL Sedan 2012/00043.jpg` (predicted BMW ActiveHybrid 5 Sedan 2012, confidence 0.2090). Each run rendered the prediction, top-5 table, bar chart, and full maintenance report with all six required sections. Graceful failure handling verified: unchecking the fake LLM toggle without the `openai` package installed produced a friendly `st.error("Pipeline failed: The openai package is required for real LLM report generation.")` with no stack trace; the `resolve_artifact_path` helper is unit-tested for missing and empty model paths. No secrets (API key, full API payloads) appear in the UI or console logs — only the model name and predicted label are surfaced. Stage 6 may now begin.
 
 ## Stage 6 - Evaluation & Write-up
 
