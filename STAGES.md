@@ -11,7 +11,7 @@ Hard rule: No stage begins until the previous stage's verification criteria are 
 | 3 | LLM Component | Prompt template, OpenAI API wrapper, report generation | Completed |
 | 4 | Pipeline Wiring | Image in -> CNN prediction -> prompt -> LLM report, as one callable | Completed |
 | 5 | Streamlit Demo | Upload photo, show prediction, show generated report | Completed |
-| 6 | Evaluation & Write-up | CNN metrics, confusion matrix, qualitative LLM review, capstone documentation | Not started |
+| 6 | Evaluation & Write-up | CNN metrics, confusion matrix, qualitative LLM review, capstone documentation | Completed |
 
 ## Stage 1 - Foundation & Data Readiness
 
@@ -102,6 +102,8 @@ CNN metrics, confusion matrix, qualitative LLM review, capstone documentation.
 
 Verification criteria:
 
-- [ ] Confusion matrix is generated and reviewed for the most-confused classes
-- [ ] Evaluation artifacts are reproducible, meaning re-running the eval script gives consistent results
-- [ ] Write-up is complete and matches what was actually built, with no mention of unimplemented features
+- [x] Confusion matrix is generated and reviewed for the most-confused classes
+- [x] Evaluation artifacts are reproducible, meaning re-running the eval script gives consistent results
+- [x] Write-up is complete and matches what was actually built, with no mention of unimplemented features
+
+Stage 6 completed on 2026-07-05: added confusion matrix analysis module (`src/model/confusion_analysis.py`) and CLI (`src/model/analyze_confusion.py`) that load the saved Stage 2 test predictions, compute the top-K most-confused class pairs (excluding the diagonal), and generate a filtered confusion matrix heatmap PNG and training curves PNG. Generated evaluation artifacts at `artifacts/stage6_evaluation/`: `confusion_analysis.json` (top-20 most-confused pairs with counts and labels), `confusion_heatmap.png` (top-25 most-confused classes heatmap), and `training_curves.png` (accuracy/loss over 5 epochs). The top confused pairs are dominated by visually similar vehicles: GMC Savana Van 2012 → Chevrolet Express Van 2007 (26 confusions), Land Rover LR2 SUV 2012 → Land Rover Range Rover SUV 2012 (22), Dodge Sprinter Cargo Van 2009 → Mercedes-Benz Sprinter Van 2012 (20), and Chrysler Town and Country Minivan 2012 → Honda Odyssey Minivan 2007 (18). Reproducibility verified: re-running `python -m src.model.analyze_confusion` with the same inputs produces identical JSON output and visually identical PNG plots. Added `tests/test_confusion_analysis.py` with 10 tests covering class label loading, predictions CSV parsing, confusion analysis ranking and edge cases, JSON serialization, and PNG generation smoke tests. Focused Stage 6 tests passed with `10 passed`; the full test suite passed with `40 passed`. Wrote the capstone write-up at `docs/CAPSTONE_WRITEUP.md` covering: project overview, what was built per stage, CNN test metrics (top-1 accuracy 0.3528, top-5 0.6513, macro F1 0.3467), most-confused class pairs analysis, training curves, LLM report quality, tech stack, reproducibility commands, and an explicit "What Was NOT Built" section listing unimplemented features (no PyTorch, no persistence layer, no user accounts, no batch upload, no TTA, no hyperparameter tuning). All six stages are now complete.

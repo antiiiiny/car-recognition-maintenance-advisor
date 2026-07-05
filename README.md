@@ -148,6 +148,18 @@ Run the Streamlit app shell:
 streamlit run src/app/main.py
 ```
 
+Run the Stage 6 confusion matrix analysis:
+
+```powershell
+python -m src.model.analyze_confusion `
+    --predictions artifacts/stage2_full/efficientnetb0/eval_test/test_predictions.csv `
+    --class-mapping artifacts/stage2_full/efficientnetb0/class_mapping.json `
+    --training-log artifacts/stage2_full/efficientnetb0/training_log.csv `
+    --output-dir artifacts/stage6_evaluation
+```
+
+See `docs/CAPSTONE_WRITEUP.md` for the full capstone write-up, including CNN metrics, most-confused class pairs, training curves, and an explicit "What Was NOT Built" section.
+
 ## Notes
 
 - Do not commit datasets, trained models, logs, reports, or secrets.
